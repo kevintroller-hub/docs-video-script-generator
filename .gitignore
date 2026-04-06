@@ -1,0 +1,10 @@
+# Generated scripts — stay local to each writer
+Video Scripts/*/
+!Video Scripts/.gitkeep
+
+# Generated logs — stay local to each writer
+Video Logs/*/
+!Video Logs/.gitkeep
+
+# macOS system files
+.DS_Store
