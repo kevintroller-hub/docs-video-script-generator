@@ -8,3 +8,6 @@ Video Logs/*/
 
 # macOS system files
 .DS_Store
+
+# Local Claude Code overrides (machine-specific)
+.claude/settings.local.json
