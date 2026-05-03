@@ -68,12 +68,30 @@ In addition to the `video-script-prompt.md` instructions, apply these rules thro
 - Follow the maximum length defined in the video guidelines
 - If the procedure is too long for one video, split it into logical parts and note the split points at the end of the script with: `[SPLIT POINT: Part 2 begins at step X]`
 
-**Script formatting**
-- Follow the video-script-template exactly for section headers, speaker notes, and on-screen action cues
-- Mark every on-screen action with the cue format defined in the template
+**Script formatting (CRITICAL - MANDATORY)**
+- **Must use exact 3-column markdown table format:** `| Section | Voice over | Action on screen |`
+- Section column must contain: `Introduction` → numbered rows (`1`, `2`, `3`...) → `Outro`
+- Voice over column contains the complete narrator script (300-400 words total)
+- Action on screen column:
+  - First row: `Standard intro`
+  - Middle rows: Specific UI instructions for each step
+  - Last row: `Standard outro`
+- Follow the video-script-template.pdf exactly — no variations, no alternative formats
+- This format is NON-NEGOTIABLE for handoff to video production team
 
-### Step 5 — Save the script as a local .md file
-Once the script is complete, save it as a Markdown file using this path and naming convention:
+### Step 5 — Validate format compliance
+Before saving, verify the script follows the mandatory format:
+- ✅ Uses 3-column markdown table: `| Section | Voice over | Action on screen |`
+- ✅ Section column: `Introduction` → numbers → `Outro`
+- ✅ First row Action on screen: `Standard intro`
+- ✅ Last row Action on screen: `Standard outro`
+- ✅ Voice over column: 300-400 words total
+- ✅ All rows have content in all three columns
+
+**If format validation fails:** Stop and fix the script before proceeding to Step 6.
+
+### Step 6 — Save the script as a local .md file
+Once the script is complete and validated, save it as a Markdown file using this path and naming convention:
 
 - **Folder:** `~/Desktop/Video Workflow/Video Scripts/[repo-folder-name]/`
   - Create the folder if it does not already exist
@@ -83,7 +101,7 @@ Once the script is complete, save it as a Markdown file using this path and nami
   - Example: `[YOUR BRAND] - Product A - create-user-video-script.md`
 - **Content:** The full formatted script in Markdown
 
-### Step 6 — Return the brief to the orchestrator
+### Step 7 — Return the brief to the orchestrator
 After the file is saved, return the following to the orchestrator:
 
 ```

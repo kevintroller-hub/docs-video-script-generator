@@ -10,27 +10,18 @@ You do not write scripts, review content, or append rows to the CSV tracker dire
 
 ## How to start a run
 
-When the user invokes you, your first action is always to ask:
+When the user invokes you, follow these configuration steps before starting any work:
 
-```
-Which repositories would you like to process this run?
+### Step 0 — Configure GitHub folder and discover repositories
 
-Available repositories under ~/Documents/GitHub/:
-  - docs-product-a
-  - docs-product-b
-  - docs-product-c
-  - docs-product-d
-  - [additional documentation repositories...]
+Invoke `/setup-github` to:
+1. Auto-detect or configure the GitHub folder path
+2. Discover all `docs-*` repositories (excluding excluded folders)
+3. Prompt user for repository selection (All/Specific/Single)
 
-Options:
-  A) All repositories
-  B) Select specific repositories (list the names)
-  C) Single test file (provide the full file path)
+**Record start time:** Immediately after user confirms selection, record the timestamp for execution time tracking.
 
-Please type A, B, or C to continue.
-```
-
-Wait for the user's response before proceeding. Do not begin scanning until the scope is confirmed.
+Do not begin scanning until the scope is confirmed.
 
 ---
 
@@ -43,7 +34,7 @@ Before doing anything else, read the following files in full:
 - `~/Desktop/Video Workflow/Video Assets/video-guidelines.pdf`
 - `~/Desktop/Video Workflow/Video Assets/video-script-template.pdf`
 - `~/Desktop/Video Workflow/Video Assets/video-script-samples.pdf`
-- `~/Desktop/Video Workflow/Video Assets/cx-writing-guidelines.md`
+- `~/Desktop/Video Workflow/Video Assets/cx-writing-guidelines.pdf`
 - `~/Desktop/Video Workflow/Video Assets/video-script-prompt.md`
 
 If any of these files cannot be read, stop immediately and report:
@@ -59,7 +50,7 @@ Do not proceed without all five reference files loaded.
 
 Before processing the full queue, always run a test on a single `.adoc` file to validate the pipeline end to end.
 
-If the user selected option C (single test file), use that file.
+If the user selected option C (single repository), use the first `.adoc` file found.
 If the user selected option A or B, pick the first `.adoc` file found in the first repository and inform the user:
 
 ```
@@ -85,7 +76,7 @@ Wait for the user's confirmation before continuing. If the user responds NO, hal
 
 ### Step 3 — Scan the repository queue
 
-Once the test is approved, scan all `.adoc` files in the selected repositories. Walk every folder recursively under `~/Documents/GitHub/[repo-name]/` and build a complete file queue.
+Once the test is approved, scan all `.adoc` files in the selected repositories. Walk every folder recursively under `[GitHub-folder-path]/[repo-name]/` and build a complete file queue.
 
 Print a scan summary before analysis begins:
 
@@ -98,18 +89,14 @@ Starting analysis...
 
 ### Step 4 — Analyse each file
 
-For each `.adoc` file in the queue, read the content and apply the video detection criteria defined in `CLAUDE.md`. Assign one of three statuses:
-
-- `VIDEO_NEEDED` — clear UI procedure detected, meets video guidelines
-- `FLAGGED` — ambiguous content that needs human review
-- `SKIP` — no video warranted
+Invoke `/analyze-docs [repo-name] [github-folder-path]` to classify all .adoc files as VIDEO_NEEDED, FLAGGED, or SKIP.
 
 As analysis runs, print a one-line progress update per file:
 
 ```
-[✓ SKIP]         product-a-docs / overview.adoc
-[✓ VIDEO_NEEDED] product-a-docs / create-user.adoc
-[⚠ FLAGGED]      product-a-docs / manage-settings.adoc
+[✓ SKIP]         docs-product-a / overview.adoc
+[✓ VIDEO_NEEDED] docs-product-a / create-user.adoc
+[⚠ FLAGGED]      docs-product-a / manage-settings.adoc
 ```
 
 ### Step 5 — Save flagged files to a report
@@ -124,8 +111,8 @@ The CSV format is:
 
 ```csv
 .adoc file,Path,Reason
-manage-settings.adoc,~/Documents/GitHub/docs-product-a/path/to/manage-settings.adoc,Mix of conceptual and UI steps — unclear scope
-bulk-import.adoc,~/Documents/GitHub/docs-product-a/path/to/bulk-import.adoc,Procedure is only 2 steps — may be too short
+manage-settings.adoc,[GitHub-folder-path]/docs-product-a/path/to/manage-settings.adoc,Mix of conceptual and UI steps — unclear scope
+bulk-import.adoc,[GitHub-folder-path]/docs-product-a/path/to/bulk-import.adoc,Procedure is only 2 steps — may be too short
 ```
 
 **CSV Rules:**
@@ -150,10 +137,10 @@ Do not wait for the user to review flagged files before continuing. Process all 
 
 ### Step 6 — Process VIDEO_NEEDED files
 
-For each `VIDEO_NEEDED` file, run the three subagents in sequence:
+Invoke `/batch-generate [video-needed-files-list] [repo-name] all` to process all VIDEO_NEEDED files through three parallel phases:
 
-**6a. Script writer subagent**
-Pass the following brief:
+**Phase A: Script Generation (parallel batches)**
+Launch multiple script-writer agents simultaneously (4-8 per batch). Each agent receives:
 
 ```
 REPO FOLDER: [repo folder name]
@@ -162,16 +149,16 @@ FILE CONTENT: [full text of the .adoc file]
 PROCEDURE EXCERPT: [the specific section identified as video-worthy]
 ```
 
-Wait for the script writer to return a completed brief with `STATUS: COMPLETE` and a local script file path before proceeding. If the status is `ERROR` or `FLAGGED`, log the issue and move to the next file — do not halt the full run.
+Wait for all agents in the batch to return completed briefs with `STATUS: COMPLETE` and local script file paths. If any status is `ERROR` or `FLAGGED`, log the issue and continue with the rest — do not halt the full run.
 
-**6b. Peer reviewer subagent**
-Pass the script file path and product name returned by the script writer. Wait for a review summary with status `APPROVED`, `APPROVED WITH EDITS`, or `NEEDS REWORK`.
+**Phase B: Peer Review (parallel batches)**
+After all scripts are generated, launch multiple peer-reviewer agents simultaneously (6-10 per batch), each receiving the script file path. Wait for review summaries with status `APPROVED`, `APPROVED WITH EDITS`, or `NEEDS REWORK`.
 
-- `APPROVED` or `APPROVED WITH EDITS` — proceed to the CSV logger
-- `NEEDS REWORK` — log the file with status `Needs rework` in the CSV tracker and include it in the final run report with the reviewer's flags. Do not delete the `.md` script file.
+- `APPROVED` or `APPROVED WITH EDITS` — mark ready for CSV logging
+- `NEEDS REWORK` — flag for inclusion in final run report with reviewer's notes. Do not delete the `.md` script file.
 
-**6c. CSV logger subagent**
-Pass the completed record with the repository name:
+**Phase C: CSV Logging (batch operation)**
+After all reviews are complete, pass completed records to the CSV logger subagent:
 
 ```
 REPO FOLDER: [repo folder name]
@@ -184,11 +171,9 @@ STATUS: Script created
 
 The CSV logger will append to `~/Desktop/Video Workflow/Video Logs/[repo-folder]/video-script-tracker.csv`.
 
-Wait for confirmation that the row was logged before moving to the next file.
-
 ### Step 7 — Log SKIP files
 
-After all `VIDEO_NEEDED` files are processed, pass each `SKIP` file to the CSV logger subagent with the repository name:
+After all `VIDEO_NEEDED` files are processed, pass each `SKIP` file to the CSV logger subagent:
 
 ```
 REPO FOLDER: [repo folder name]
@@ -199,33 +184,11 @@ SCRIPT FILE PATH: N/A
 STATUS: No video
 ```
 
-The CSV logger will append to the repository-specific tracker at `~/Desktop/Video Workflow/Video Logs/[repo-folder]/video-script-tracker.csv`.
+### Step 8 — Verify and generate completion report
 
-### Step 8 — Print the final run report
+Invoke `/verify-workflow [repo-name] [analysis-results]` to verify CSV completeness, flagged reports, and data integrity.
 
-After all files are processed, print a full summary:
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Video Script Pipeline — Run complete
-Date: [YYYY-MM-DD]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Repositories processed: [list]
-Total .adoc files scanned: [number]
-
-Scripts created:       [number]
-Skipped (no video):    [number]
-Flagged for review:    [number] → ~/Desktop/Video Workflow/Video Logs/[repo-name]/flagged-report-[date].csv
-Errors:                [number]
-Needs rework:          [number]
-
-CSV tracker updated:   YES / NO → ~/Desktop/Video Workflow/Video Logs/[repo-name]/video-script-tracker.csv
-Scripts saved to:      ~/Desktop/Video Workflow/Video Scripts/[repo-name]/
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Errors and rework items:
-[list each with file path and reason, or NONE]
-```
+After verification passes, invoke `/generate-completion-report [run-data] [mode]` to create a comprehensive completion report. Skill saves the report to `Video Logs/`, displays it to the user, and returns the file path.
 
 ---
 
