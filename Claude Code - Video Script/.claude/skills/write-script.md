@@ -32,7 +32,7 @@ Every script file must be a **markdown document** with this exact structure:
 
 #### 1. Header Metadata (Optional for Automation Workflow)
 
-Scripts should include:
+While the full template includes metadata fields (Title, Short Description, Org ID, etc.), the automation workflow can omit these as they will be added later by the video team. However, scripts should include:
 - Title as a markdown heading at the top
 - Short description as a subtitle
 
@@ -45,12 +45,12 @@ All scripts must use this **exact markdown table structure**:
 |---------|-----------|------------------|
 | Introduction | [Narrator script text: "Hi there! Today we're going to..."] | Standard intro |
 | 1 | [Narrator script for step 1] | [UI instructions: "Sign in to [Your Platform]..."] |
-| 2 | [Narrator script for step 2] | [UI instructions: "Click [Menu Name]..."] |
-| 3 | [Narrator script for step 3] | [UI instructions: "Select [Option Name]..."] |
-| 4 | [Narrator script for step 4] | [UI instructions: "Click the [Tab Name] tab..."] |
-| 5 | [Narrator script for step 5] | [UI instructions: "Click [Button Name]..."] |
+| 2 | [Narrator script for step 2] | [UI instructions: "Click Applications..."] |
+| 3 | [Narrator script for step 3] | [UI instructions: "Select Manage Application..."] |
+| 4 | [Narrator script for step 4] | [UI instructions: "Click the Properties tab..."] |
+| 5 | [Narrator script for step 5] | [UI instructions: "Click Protect..."] |
 | 6 | [Narrator script for step 6] | [UI instructions: "Click Apply Changes..."] |
-| Outro | [Closing text: "To learn more, check out these resources."] | Standard outro |
+| Outro | [Closing text: "To learn more, check out these resources. "] | Standard outro |
 ```
 
 ### Column Specifications
@@ -90,7 +90,7 @@ All scripts must use this **exact markdown table structure**:
 | 1 | [Step 1 narrator text] | [UI actions for step 1] |
 | 2 | [Step 2 narrator text] | [UI actions for step 2] |
 | ... | ... | ... |
-| Outro | To learn more, check out these resources. | Standard outro |
+| Outro | To learn more, check out these resources.  | Standard outro |
 ```
 
 ### Format Validation Checklist
@@ -105,6 +105,7 @@ Before considering a script complete, verify:
 - ✅ Outro Action on screen: `Standard outro`
 - ✅ Voice over column contains complete narrator script (300-400 words total)
 - ✅ Action on screen column contains specific UI instructions for numbered sections
+- ✅ Standard outro text in Voice over: "To learn more, check out these resources. "
 
 ### Important Notes
 
@@ -134,18 +135,18 @@ Before considering a script complete, verify:
 
 ## File Naming Convention
 
-**Format:** `[BRAND] - [PRODUCT] - [topic]-video-script.md`
+**Format:** `[YOUR BRAND] - [PRODUCT] - [topic]-video-script.md`
 
 **Examples:**
-- `[BRAND] - [Product A] - deploy-application-video-script.md`
-- `[BRAND] - [Product B] - create-api-proxy-video-script.md`
+- `[YOUR BRAND] - Product A - deploy-application-video-script.md`
+- `[YOUR BRAND] - Product B - create-api-proxy-video-script.md`
 
 ---
 
 ## Quality Requirements
 
 - Must follow video length guidelines (300-400 words in Voice over column)
-- Must follow writing guidelines (tone, clarity, active voice)
+- Must follow CX writing guidelines (tone, clarity, active voice)
 - Must not include PII or sensitive product data
 - Must use second person ("you") for user actions
 - Must be clear, concise, and conversational

@@ -5,7 +5,7 @@
 This project automates the creation of video scripts from AsciiDoc (`.adoc`) documentation files. An orchestrator agent scans documentation repositories, identifies content that would benefit from a video (specifically UI procedures), and delegates to specialist subagents that write, review, and log each script. All scripts are saved as local `.md` files and tracked in a central `video-script-tracker.csv` file.
 
 The workflow supports three modes of operation:
-- **All repositories:** Process all documentation repositories in one run
+- **All repositories:** Process all 40 documentation repositories in one run
 - **Specific repositories:** Process a user-selected subset of repositories
 - **Single repository:** Process one repository (ideal for testing or focused updates)
 
@@ -25,14 +25,14 @@ Use the `/setup-github` skill to automatically detect or configure the GitHub fo
 2. Searches common locations (macOS/Linux/Windows)
 3. Validates candidates (must have ≥3 `docs-*` repos)
 4. Presents detection results and prompts for confirmation
-5. Discovers all `docs-*` repositories (excluding excluded folders)
+5. Discovers all `docs-*` repositories (excluding 4 excluded folders)
 6. Prompts for selection mode: All (A) | Specific (B) | Single (C)
 7. Optionally saves path for future runs
 
 **Excluded folders (never processed):**
-- `docs-internal-only`
-- `docs-archived`
-- `docs-site-config`
+- `dev-docs-internal-integration-internal`
+- `docs-superagent`
+- `docs-site-playbook`
 - `docs-release-notes`
 
 See `.claude/skills/setup-github.md` for complete documentation.
@@ -48,13 +48,13 @@ All documentation repositories are cloned locally under a single GitHub parent f
 **Structure example:**
 ```
 [GitHub-folder]/
-  ├── docs-product-a/
-  ├── docs-product-b/
+  ├── docs-access-management/
+  ├── docs-api-manager/
   └── [other docs-* folders...]
       └── **/*.adoc
 ```
 
-**Repository pattern:** `docs-*` (e.g., `docs-product-a`, `docs-product-b`)  
+**Repository pattern:** `docs-*` (e.g., `docs-runtime-manager`, `docs-api-manager`)  
 **Discovery:** Orchestrator scans GitHub folder for `docs-*` directories at runtime
 
 ### Excluded folders
@@ -62,16 +62,16 @@ All documentation repositories are cloned locally under a single GitHub parent f
 The following folder patterns must **never** be scanned or processed, even if they exist in the GitHub folder:
 
 **Excluded by name (exact match):**
-- `docs-internal-only`
-- `docs-archived`
-- `docs-site-config`
+- `dev-docs-internal-integration-internal`
+- `docs-superagent`
+- `docs-site-playbook`
 - `docs-release-notes`
 
 **Why excluded:** These folders do not contain documentation content relevant to video script generation.
 
 **Implementation:**
 1. When discovering repositories, skip any folder that matches the excluded list
-2. When Option A (All repositories) is selected, process all discovered `docs-*` repositories except these
+2. When Option A (All repositories) is selected, process all discovered `docs-*` repositories except these 4
 3. These excluded folders should never appear in the selection list presented to the user
 4. If a user explicitly requests an excluded repository (Option C), warn them it's excluded and prompt for a different selection
 
@@ -81,33 +81,50 @@ All reference materials and generated outputs are organized as follows:
 
 ```
 ~/Desktop/Video Workflow/
-  ├── Video Assets/              # Reference materials
+  ├── Video Assets/                          # Shared reference materials (both workflows)
   │     ├── video-guidelines.pdf
   │     ├── video-script-template.pdf
   │     ├── video-script-samples.pdf
   │     ├── cx-writing-guidelines.pdf
-  │     └── video-script-prompt.md
-  ├── Video Scripts/             # Generated video scripts (auto-created per repository)
-  │     ├── docs-product-a/
-  │     ├── docs-product-b/
-  │     └── [one folder per processed repository...]
-  │           └── [BRAND] - [repo-name] - [topic]-video-script.md (example)
-  └── Video Logs/                # Tracking files organized by repository (auto-created per repository)
-        ├── docs-product-a/
-        │     ├── video-script-tracker.csv
-        │     └── flagged-report-[date].csv
-        ├── docs-product-b/
-        │     ├── video-script-tracker.csv
-        │     └── flagged-report-[date].csv
-        └── [one folder per processed repository...]
+  │     ├── video-script-prompt.md
+  │     ├── script-template.md
+  │     └── script-sample.md
+  │
+  ├── Claude Code - Video Script/            # Claude Code workflow (this folder)
+  │     ├── CLAUDE.md                        # This file — project rules
+  │     ├── .claude/                         # Agents and skills
+  │     │     ├── agents/
+  │     │     └── skills/
+  │     ├── Video Scripts/                   # Generated video scripts (auto-created per repository)
+  │     │     ├── docs-access-management/
+  │     │     ├── docs-api-manager/
+  │     │     ├── docs-code-builder/
+  │     │     ├── docs-composer/
+  │     │     ├── docs-runtime-manager/
+  │     │     └── [one folder per processed repository...]
+  │     │           └── [Your Brand] - [repo-name] - [topic]-video-script.md (example)
+  │     └── Video Logs/                      # Tracking files organized by repository
+  │           ├── docs-access-management/
+  │           │     ├── video-script-tracker.csv
+  │           │     └── flagged-report-[date].csv
+  │           ├── docs-runtime-manager/
+  │           │     ├── video-script-tracker.csv
+  │           │     └── flagged-report-[date].csv
+  │           └── [one folder per processed repository...]
+  │
+  └── Cursor - Video Script/                 # Cursor workflow
+        ├── Cursor Skills/                   # Skill definition (symlinked by writers)
+        │     └── SKILL.md
+        └── Video Scripts/                   # Generated HTML scripts
+              └── [Your Brand] - [Product] - [topic].html (example)
 ```
 
 **Note on folder locations:**
-- **Video Workflow folder:** Fixed location at `~/Desktop/Video Workflow/`
-- **GitHub folder:** Variable location auto-detected or configured at runtime (step 0)
+- **Video Workflow folder:** Fixed location at `~/Desktop/Video Workflow/` (can be on user's Desktop)
+- **GitHub folder:** Variable location auto-detected or configured at runtime (step 0a)
 - **Repository folders:** Dynamically created based on processed repositories
 
-> **Important:** Before starting any run, the orchestrator must load all five reference files from the Video Assets folder into its context. The `Video Scripts/` and `Video Logs/[repo-name]/` folders are created automatically on the first run for each repository.
+> **Important:** Before starting any run, the orchestrator must load all five reference files from the Video Assets folder into its context. The `Claude Code - Video Script/Video Scripts/` and `Claude Code - Video Script/Video Logs/[repo-name]/` folders are created automatically on the first run for each repository.
 
 ---
 
@@ -119,7 +136,7 @@ The orchestrator follows these steps in order for every run:
 
    Invoke `/setup-github` skill to:
    - Auto-detect or configure GitHub folder path
-   - Discover all `docs-*` repositories (excluding excluded folders)
+   - Discover all `docs-*` repositories (excluding 4 excluded folders)
    - Prompt user for repository selection (All/Specific/Single)
    
    Skill returns:
@@ -142,7 +159,7 @@ The orchestrator follows these steps in order for every run:
    - `SKIP` — no video warranted
 
 4. **Handle flagged files.** If ANY files are flagged, you MUST create a flagged report:
-   - **Mandatory:** Save all `FLAGGED` files to a dated CSV report at `~/Desktop/Video Workflow/Video Logs/[repo-name]/flagged-report-[YYYY-MM-DD].csv`
+   - **Mandatory:** Save all `FLAGGED` files to a dated CSV report at `~/Desktop/Video Workflow/Claude Code - Video Script/Video Logs/[repo-name]/flagged-report-[YYYY-MM-DD].csv`
    - CSV format with three columns: `.adoc file` | `Path` | `Reason`
    - `.adoc file` column contains just the filename
    - `Path` column contains the full file path
@@ -159,7 +176,7 @@ The orchestrator follows these steps in order for every run:
    
    Skill handles all batching, parallel execution, and verification. Returns completion status with counts.
 
-6. **Log skipped files.** Add a row to `~/Desktop/Video Workflow/Video Logs/[repo-name]/video-script-tracker.csv` for every `SKIP` file with status "No video" so the full audit trail is maintained.
+6. **Log skipped files.** Add a row to `~/Desktop/Video Workflow/Claude Code - Video Script/Video Logs/[repo-name]/video-script-tracker.csv` for every `SKIP` file with status "No video" so the full audit trail is maintained.
 
 7. **Verify workflow completeness.** Invoke `/verify-workflow [repo-name] [analysis-results]` to ensure:
    - CSV completeness: Script file count matches CSV entry count
@@ -182,7 +199,7 @@ The orchestrator follows these steps in order for every run:
 **Report structure:** 12 required sections including Header, Configuration, Execution Summary, Analysis Results, Verification Status, Script Quality Metrics, Output Summary, Next Steps, Issues/Warnings, Workflow Statistics, and Report Metadata.
 
 **Location:**
-- Single repo: `~/Desktop/Video Workflow/Video Logs/[repo-name]/completion-report-[YYYY-MM-DD-HHMM].md`
+- Single repo: `~/Desktop/Video Workflow/Claude Code - Video Script/Video Logs/[repo-name]/completion-report-[YYYY-MM-DD-HHMM].md`
 - Multiple repos: Summary + per-repo reports
 
 See `.claude/skills/generate-completion-report.md` for complete format specification and all 12 required sections.
@@ -212,7 +229,7 @@ The orchestrator delegates to three specialist subagents. Their definition files
 ### `script-writer`
 **Responsibility:** Generates a complete video script for a given `.adoc` file.
 **Inputs:** The `.adoc` file content, the video brief from the orchestrator, the video script template, and the video script samples.
-**Output:** A fully formatted video script saved as a `.md` file under `~/Desktop/Video Workflow/Video Scripts/[repo-folder]/`.
+**Output:** A fully formatted video script saved as a `.md` file under `~/Desktop/Video Workflow/Claude Code - Video Script/Video Scripts/[repo-folder]/`.
 **Rules:** 
 - Must follow video length guidelines (300-400 words)
 - Must follow the exact template format (see "Required script format" section below)
@@ -234,11 +251,11 @@ The orchestrator delegates to three specialist subagents. Their definition files
 - Return summary including format validation status
 
 ### `csv-logger`
-**Responsibility:** Appends one row to `~/Desktop/Video Workflow/Video Logs/[repo-name]/video-script-tracker.csv` after each script is approved.
+**Responsibility:** Appends one row to `~/Desktop/Video Workflow/Claude Code - Video Script/Video Logs/[repo-name]/video-script-tracker.csv` after each script is approved.
 **Inputs:** Repo folder name, `.adoc` file name, video name, short description, script file path, status.
 **Output:** One new row in the repository-specific `video-script-tracker.csv` with all six columns populated.
 **Rules:**
-- Each repository has its own tracker CSV file in `Video Logs/[repo-name]/`
+- Each repository has its own tracker CSV file in `Claude Code - Video Script/Video Logs/[repo-name]/`
 - Create the repository folder if it doesn't exist
 - Never overwrite existing rows
 - **Before logging:** Verify that the script file exists at the provided file path. If the file does not exist, do not create the CSV entry
@@ -246,6 +263,7 @@ The orchestrator delegates to three specialist subagents. Their definition files
 - Never log a CSV entry with status "Script created" unless the corresponding `.md` file exists on disk
 
 ---
+
 
 ## Parallel execution strategy
 
@@ -278,7 +296,7 @@ See `.claude/skills/batch-generate.md` for complete implementation details and b
 - Action on screen: `Standard intro` (first row), UI instructions (middle rows), `Standard outro` (last row)
 - Voice over: 300-400 words total, conversational tone, second person ("you")
 
-**File naming:** `[BRAND] - [PRODUCT] - [topic]-video-script.md`
+**File naming:** `[Your Brand] - [PRODUCT] - [topic]-video-script.md`
 
 See `.claude/skills/write-script.md` for complete format specification, validation checklist, and quality requirements.
 
@@ -287,30 +305,30 @@ See `.claude/skills/write-script.md` for complete format specification, validati
 ## Output file configuration
 
 ### Video scripts
-- **Location:** `~/Desktop/Video Workflow/Video Scripts/[repo-folder]/`
+- **Location:** `~/Desktop/Video Workflow/Claude Code - Video Script/Video Scripts/[repo-folder]/`
 - **Format:** `.md` (markdown file)
-- **File naming:** `[BRAND] - [PRODUCT] - [topic]-video-script.md`
+- **File naming:** `[Your Brand] - [PRODUCT] - [topic]-video-script.md`
 - **Content structure:** 3-column table format (Section | Voice over | Action on screen)
 
 ### Tracking files
 
 **Video script tracker (CSV):**
-- **Location:** `~/Desktop/Video Workflow/Video Logs/[repo-folder]/video-script-tracker.csv`
+- **Location:** `~/Desktop/Video Workflow/Claude Code - Video Script/Video Logs/[repo-folder]/video-script-tracker.csv`
 - **Frequency:** One per repository
 - **Columns:** `Docs repo folder` | `adoc file name` | `Video name` | `Short description` | `Script file path` | `Status` | `Date logged`
 - **Purpose:** Complete audit trail of all analyzed files and generated scripts
 
 **Flagged report (CSV):**
-- **Location:** `~/Desktop/Video Workflow/Video Logs/[repo-folder]/flagged-report-[YYYY-MM-DD].csv`
+- **Location:** `~/Desktop/Video Workflow/Claude Code - Video Script/Video Logs/[repo-folder]/flagged-report-[YYYY-MM-DD].csv`
 - **Frequency:** One per repository per run (only if files are flagged)
 - **Columns:** `.adoc file` | `Path` | `Reason`
 - **Purpose:** List of files requiring human review before video decision
 
 **Completion report (Markdown):**
-- **Location (single repo):** `~/Desktop/Video Workflow/Video Logs/[repo-folder]/completion-report-[YYYY-MM-DD-HHMM].md`
+- **Location (single repo):** `~/Desktop/Video Workflow/Claude Code - Video Script/Video Logs/[repo-folder]/completion-report-[YYYY-MM-DD-HHMM].md`
 - **Location (multiple repos):** 
-  - Summary: `~/Desktop/Video Workflow/Video Logs/completion-report-[YYYY-MM-DD-HHMM].md`
-  - Per-repo: `~/Desktop/Video Workflow/Video Logs/[repo-folder]/completion-report-[YYYY-MM-DD-HHMM].md`
+  - Summary: `~/Desktop/Video Workflow/Claude Code - Video Script/Video Logs/completion-report-[YYYY-MM-DD-HHMM].md`
+  - Per-repo: `~/Desktop/Video Workflow/Claude Code - Video Script/Video Logs/[repo-folder]/completion-report-[YYYY-MM-DD-HHMM].md`
 - **Frequency:** One per workflow run
 - **Format:** Structured markdown following exact template (see "Completion report format" section)
 - **Purpose:** Comprehensive summary of workflow execution, results, and verification status
@@ -319,12 +337,12 @@ See `.claude/skills/write-script.md` for complete format specification, validati
 
 ## Important rules for all agents
 
-- **Script format compliance (CRITICAL):** Every script MUST use the exact 3-column table format. No exceptions. No variations. Format consistency is mandatory for handoff to the video production team. See "Required script format" section for complete specification.
-- **GitHub folder path:** Always use the auto-detected or user-confirmed GitHub folder path from step 0. The workflow automatically searches common locations and validates candidates before prompting for manual entry. Never hardcode a specific path. The workflow must be portable across different user systems.
+- **Script format compliance (CRITICAL):** Every script MUST use the exact 3-column table format from video-script-template.pdf. No exceptions. No variations. Format consistency is mandatory for handoff to video production team. See "Required script format" section for complete specification.
+- **GitHub folder path:** Always use the auto-detected or user-confirmed GitHub folder path from step 0a. The workflow automatically searches common locations and validates candidates before prompting for manual entry. Never hardcode a specific path. The workflow must be portable across different user systems.
 - **Repository discovery:** Dynamically discover `docs-*` repositories in the detected/configured GitHub folder. Never rely on a hardcoded list. The number and names of repositories will vary by user.
-- **Exclusion enforcement:** Always exclude the specified folders from discovery and processing, regardless of the user's GitHub folder content.
-- **Repository scope:** Always honor the user's repository selection from step 0. Never scan or process repositories that were not selected.
-- **Time tracking:** Record the start time immediately after the user confirms repository selection and calculate the elapsed time when generating the final completion report (step 8).
+- **Exclusion enforcement:** Always exclude the 4 specified folders (dev-docs-internal-integration-internal, docs-superagent, docs-site-playbook, docs-release-notes) from discovery and processing, regardless of the user's GitHub folder content.
+- **Repository scope:** Always honor the user's repository selection from step 0c. Never scan or process repositories that were not selected. When Option C (single repository) is chosen, all outputs must be scoped to that repository only.
+- **Time tracking:** Record the start time immediately after the user confirms repository selection (step 0c) and calculate the elapsed time when generating the final completion report (step 8). Always report execution time in the final summary to help users understand workflow performance.
 - Always read the reference files before taking any action. Never rely on assumptions about the guidelines.
 - Never create a script file or CSV row for a file with `SKIP` status (except the audit log row).
 - Never include customer names, email addresses, account IDs, or any PII in a script.

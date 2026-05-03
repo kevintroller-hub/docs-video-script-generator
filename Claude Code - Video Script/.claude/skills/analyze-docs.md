@@ -31,7 +31,7 @@ Systematically analyze all .adoc files in documentation repositories and classif
 
 ## Video Detection Criteria
 
-Use these rules to decide whether a `.adoc` file warrants a video:
+Use these rules — drawn from the video guidelines — to decide whether a `.adoc` file warrants a video:
 
 ### Strong Signals for `VIDEO_NEEDED`
 
@@ -42,8 +42,8 @@ Use these rules to decide whether a `.adoc` file warrants a video:
 - The content would be significantly clearer as a screen recording than as written text
 
 **Examples:**
-- "How to deploy an application to [Your Platform]"
-- "Creating an API proxy in [Your Product]"
+- "How to deploy an application to CloudHub"
+- "Creating an API proxy in API Manager"
 - "Configuring OAuth 2.0 authentication"
 - "Setting up a load balancer"
 
@@ -56,7 +56,7 @@ Use these rules to decide whether a `.adoc` file warrants a video:
 - The file belongs to an excluded folder (see Excluded Folders section)
 
 **Examples:**
-- "Architecture Overview"
+- "Product Architecture Overview"
 - "API Reference Documentation"
 - "Glossary of Terms"
 - "Release Notes"
@@ -66,13 +66,24 @@ Use these rules to decide whether a `.adoc` file warrants a video:
 - The file contains a mix of conceptual content and some UI steps — unclear if a focused video is possible
 - The procedure is very short (1–2 steps) — may not justify a full video
 - The file references a UI that may contain PII or sensitive demo data
-- Unsure whether the content meets the minimum length requirement per the video guidelines
+- The orchestrator is unsure whether the content meets the minimum length requirement per the video guidelines
+
+**Examples:**
+- File with 10 paragraphs of concept + 2 UI steps at end
+- Single-step procedure ("Click Deploy")
+- Tutorial using customer-specific data
 
 ---
 
 ## Excluded Folders
 
-The following folder patterns must **never** be scanned or processed. Excluded folder names are defined in `CLAUDE.md`:
+The following folder patterns must **never** be scanned or processed:
+
+**Excluded by name (exact match):**
+- `docs-internal-only`
+- `docs-archived`
+- `docs-site-config`
+- `docs-release-notes`
 
 **Repository-specific exclusions:**
 - Files in `/partials/` folders (reusable content fragments)
@@ -84,7 +95,7 @@ The following folder patterns must **never** be scanned or processed. Excluded f
 
 ## Parallel Execution Strategy
 
-**IMPORTANT:** Use parallel execution to dramatically improve performance.
+**IMPORTANT:** Use parallel execution to dramatically improve performance. Instead of analyzing files one at a time sequentially, delegate the entire analysis phase to a specialized agent.
 
 **Sequential (AVOID):** File-by-file ~30-45 min for 150+ files  
 **Parallel (USE):** 1 specialized agent analyzes all ~2-3 min
@@ -95,6 +106,7 @@ The following folder patterns must **never** be scanned or processed. Excluded f
    - Launch a single `general-purpose` agent with the complete file analysis task
    - Agent receives: list of all .adoc files, video detection criteria, repository context
    - Agent analyzes all files systematically and returns three categorized lists
+   - Agent applies video detection criteria consistently across all files
 
 2. **Agent prompt must include:**
    - Complete list of .adoc files to analyze
@@ -103,11 +115,34 @@ The following folder patterns must **never** be scanned or processed. Excluded f
    - Output format: three lists with file paths and classification reasons
    - Repository-specific exclusions (partials, attributes, navigation files)
 
-3. **After analysis completes:**
+3. **Analysis output format:**
+   - VIDEO_NEEDED: List with file paths and brief reasons (e.g., "UI procedure for deploying apps - 8 steps")
+   - FLAGGED: List with file paths and specific flagging reasons
+   - SKIP: List with file paths and skip reasons (e.g., "Conceptual overview", "API reference")
+
+4. **After analysis completes:**
    - Parse the agent's categorized lists
    - Validate counts (VIDEO_NEEDED + FLAGGED + SKIP = Total files)
    - Proceed to script generation for VIDEO_NEEDED files
    - Create flagged report if FLAGGED list is not empty
+
+### Key Optimization Points
+
+- Single agent handles all analysis consistently
+- Agent reads and classifies files systematically
+- Error handling: restart with full list if agent fails
+- Use task system to track analysis phase
+
+---
+
+## Analysis Quality Requirements
+
+- Read at least the first 50-100 lines of each file
+- Check for UI-related keywords: click, select, navigate, enter, toggle, configure
+- Count numbered steps or procedure sections
+- Identify file type from heading or metadata (concept, task, reference)
+- Cross-reference existing `video-script-tracker.csv` to avoid duplicates
+- Apply exclusion rules consistently
 
 ---
 
