@@ -62,14 +62,26 @@ Read the repository-specific tracker file and scan column B for the `.adoc` file
 - Do not append a duplicate row
 - Return `STATUS: DUPLICATE — row already exists for [filename] in [repo-name] tracker. No action taken.`
 
-### Step 3 — Append the row
+### Step 3 — Verify script file exists (MANDATORY for "Script created" status)
+**CRITICAL:** Before logging any entry with status "Script created", verify the script file actually exists on disk:
+- Check that the file at the provided Script file path exists
+- If the file does **not** exist:
+  - Do NOT create the CSV entry
+  - Return `STATUS: ERROR — script file does not exist at provided path. Row not written.`
+- If the file exists, proceed to Step 4
+
+**Why this matters:** The CSV is an audit trail. Entries must reflect actual deliverables, not intended ones. Never log "Script created" unless the .md file exists on disk.
+
+**Note:** For status "No video", "Flagged", or "Error", skip this verification (no script file is expected).
+
+### Step 4 — Append the row
 Add a new line at the end of the repository-specific tracker file with the seven values in order, comma-separated. Wrap any value that contains a comma in double quotes:
 
 ```
 docs-product-a,create-user.adoc,Create a user,"Shows how to add a new user in the admin panel",~/Desktop/Video Workflow/Video Scripts/docs-product-a/[YOUR BRAND] - Product A - create-user-video-script.md,Script created,2026-04-02
 ```
 
-### Step 4 — Return confirmation to the orchestrator
+### Step 5 — Return confirmation to the orchestrator
 
 ```
 STATUS: LOGGED / DUPLICATE / ERROR
@@ -78,6 +90,7 @@ ROW APPENDED: [row number, e.g. Row 14]
 ADOC FILE: [filename]
 VIDEO NAME: [video title]
 SCRIPT FILE PATH: [local path]
+FILE VERIFIED: YES / NO / N/A (for "Script created" status, must be YES)
 TRACKER FILE: ~/Desktop/Video Workflow/Video Logs/[repo-name]/video-script-tracker.csv
 ```
 
