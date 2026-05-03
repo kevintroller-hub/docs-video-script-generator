@@ -1,13 +1,11 @@
-# Generated scripts — stay local to each writer
-Video Scripts/*/
-!Video Scripts/.gitkeep
+# Claude Code workflow — generated scripts and logs stay local to each writer
+Claude Code - Video Script/Video Scripts/*/
+!Claude Code - Video Script/Video Scripts/.gitkeep
+Claude Code - Video Script/Video Logs/*/
+!Claude Code - Video Script/Video Logs/.gitkeep
 
-# Generated logs — stay local to each writer
-Video Logs/*/
-!Video Logs/.gitkeep
+# Cursor workflow — generated scripts stay local
+Cursor - Video Script/Video Scripts/
 
 # macOS system files
 .DS_Store
-
-# Local Claude Code overrides (machine-specific)
-.claude/settings.local.json

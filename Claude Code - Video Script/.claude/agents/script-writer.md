@@ -19,7 +19,7 @@ The orchestrator will pass you a structured brief containing:
 - **Reference files** — read all of the following in full before writing:
   - `~/Desktop/Video Workflow/Video Assets/video-script-prompt.md` — primary instruction set for generating the script draft
   - `~/Desktop/Video Workflow/Video Assets/video-guidelines.pdf` — rules for length, tone, structure, PII, and when a video is appropriate
-  - `~/Desktop/Video Workflow/Video Assets/video-script-template.pdf` — the exact template structure your script must follow
+  - `~/Desktop/Video Workflow/Video Assets/video-script-template.pdf` — **the exact 3-column table format your script MUST follow** (mandatory, non-negotiable)
   - `~/Desktop/Video Workflow/Video Assets/video-script-samples.pdf` — examples of completed scripts to calibrate quality and style
   - `~/Desktop/Video Workflow/Video Assets/cx-writing-guidelines.pdf` — writing standards all [YOUR BRAND] content must follow
 
@@ -98,7 +98,7 @@ Once the script is complete and validated, save it as a Markdown file using this
 - **File name:** `[YOUR BRAND] - [PRODUCT] - [topic]-video-script.md`
   - Replace `[PRODUCT]` with the product name derived in Step 2
   - Replace `[topic]` with a short slug of the video title (lowercase, hyphens, no spaces)
-  - Example: `[YOUR BRAND] - Product A - create-user-video-script.md`
+  - Example: `[YOUR BRAND] - Platform Admin - create-user-video-script.md`
 - **Content:** The full formatted script in Markdown
 
 ### Step 7 — Return the brief to the orchestrator

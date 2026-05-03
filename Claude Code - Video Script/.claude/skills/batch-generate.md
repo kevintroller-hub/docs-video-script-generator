@@ -66,18 +66,19 @@ Process VIDEO_NEEDED files through three parallel execution phases: script gener
    - Section column values: `Introduction`, numbered rows (`1`, `2`, `3`...), `Outro`
    - Action on screen for Introduction: `Standard intro`
    - Action on screen for Outro: `Standard outro`
-   - Writing guidelines
-   - Output file path and naming convention: `[BRAND] - [PRODUCT] - [topic]-video-script.md`
+   - CX writing guidelines
+   - Output file path and naming convention: `[YOUR BRAND] - [PRODUCT] - [topic]-video-script.md`
    - Word count limit (~300-400 words total in Voice over column)
 
 4. **After all batches complete:**
    - Verify all script files exist on disk
    - Proceed to peer review phase
+   - Log any failures for retry
 
 ### Batching Strategy
 
-- **Batch size:** 4-8 agents per batch
-- **Grouping logic:** Group by topic similarity when possible
+- **Batch size:** 4-8 agents per batch (optimal balance between parallelism and resource usage)
+- **Grouping logic:** Group by topic similarity when possible (e.g., all deployment-related scripts in one batch)
 - **Error handling:** If one agent fails, continue with others; retry failed scripts separately
 - **Progress tracking:** Use task system to monitor batch completion
 
@@ -90,14 +91,14 @@ Process VIDEO_NEEDED files through three parallel execution phases: script gener
 1. **Group generated scripts into review batches** (6-10 scripts per batch)
 
 2. **Launch each batch in a single message** with multiple Agent tool calls:
-   - Each agent receives: script file path, writing guidelines, format validation rules
+   - Each agent receives: script file path, CX writing guidelines, format validation rules
    - Each agent executes: read script → review against guidelines → edit file → save
    - All agents in the batch work simultaneously (not sequentially)
    - Wait for all agents in batch to complete before starting next batch
 
 3. **Each peer reviewer prompt must include:**
    - Full path to .md script file
-   - Writing guidelines reference from `~/Desktop/Video Workflow/Video Assets/cx-writing-guidelines.pdf`
+   - CX writing guidelines reference from `~/Desktop/Video Workflow/Video Assets/cx-writing-guidelines.pdf`
    - **Mandatory format validation:** 3-column table (Section | Voice over | Action on screen)
    - Check Section column: `Introduction` → numbered rows → `Outro`
    - Verify Action on screen column: `Standard intro` (first row) and `Standard outro` (last row)
@@ -108,13 +109,15 @@ Process VIDEO_NEEDED files through three parallel execution phases: script gener
 4. **After all review batches complete:**
    - Verify all script files still exist on disk
    - Proceed to CSV logging phase
+   - Log any review failures
 
 ### Batching Strategy
 
-- **Batch size:** 6-10 agents per batch
+- **Batch size:** 6-10 agents per batch (reviewers can handle more files than writers)
 - **In-place edits:** Reviewers edit existing files, not create new ones
 - **Format validation:** Each reviewer MUST confirm 3-column table format compliance
 - **Error handling:** If review fails, script is still usable but flagged for manual review
+- **Progress tracking:** Use task system to monitor review completion
 
 ---
 
@@ -134,9 +137,19 @@ Process VIDEO_NEEDED files through three parallel execution phases: script gener
    - No duplicate entries for the same .adoc file
    - All 7 columns populated: `Docs repo folder | adoc file name | Video name | Short description | Script file path | Status | Date logged`
 
+3. **Logging format:**
+   - **Docs repo folder:** Repository name (e.g., "docs-product-a")
+   - **adoc file name:** Just the filename (e.g., "deploy-app.adoc")
+   - **Video name:** Descriptive title (e.g., "Deploy Application to CloudHub")
+   - **Short description:** 1-2 sentence summary
+   - **Script file path:** Full path to .md file
+   - **Status:** "Script created"
+   - **Date logged:** YYYY-MM-DD format
+
 ### CSV Integrity Rules
 
 - **NEVER log a CSV entry before verifying the corresponding script file exists**
+- The CSV is an audit trail — entries must reflect actual deliverables, not intended ones
 - If a script file is missing or unreachable, do not create the CSV entry
 - Save failed entries to a pending log for retry on next run
 
@@ -144,11 +157,23 @@ Process VIDEO_NEEDED files through three parallel execution phases: script gener
 
 ## Key Optimization Points
 
-- Batch size: 4-8 agents for writing, 6-10 for reviewing
-- Each agent writes/reviews independently to separate files
+### Script Generation Phase
+- Batch size: 4-8 agents per batch
+- Each agent writes independently to separate file
 - No file conflicts (different output paths)
-- CSV logging after all reviews complete (batch operation)
-- Error handling: continue if one fails, retry separately
+- Parallel execution reduces time by 75-85%
+
+### Peer Review Phase
+- Batch size: 6-10 agents per batch
+- In-place edits (no new files created)
+- Each reviewer works independently
+- Parallel execution reduces time by 70-80%
+
+### CSV Logging Phase
+- Batch operation (not per-script)
+- Single agent handles all entries
+- Verification before logging
+- Prevents race conditions on CSV file
 
 ---
 
@@ -169,6 +194,28 @@ All agents must load these reference files from `~/Desktop/Video Workflow/Video 
 
 ---
 
+## Error Handling
+
+### Script Generation Failures
+- Log failed file path and error reason
+- Continue with remaining batches
+- Retry failed scripts in separate batch
+- Report failures in completion report
+
+### Peer Review Failures
+- Script remains usable but flagged for manual review
+- Log review failure reason
+- Continue with remaining batches
+- Report failures in completion report
+
+### CSV Logging Failures
+- Verify script file exists before logging
+- If file missing, do not create CSV entry
+- Save failed entries to pending log
+- Report discrepancies in verification step (step 7)
+
+---
+
 ## Output Format
 
 Return structured JSON with:
@@ -178,6 +225,22 @@ Return structured JSON with:
 - **csv_entries_logged:** Count of CSV entries created
 - **failed:** Array of failed operations with file paths and reasons
 - **execution_time:** Human-readable duration string
+
+**Example:**
+```json
+{
+  "phase": "all",
+  "scripts_generated": 42,
+  "scripts_reviewed": 42,
+  "csv_entries_logged": 42,
+  "failed": [],
+  "execution_time": "18 minutes",
+  "batches": {
+    "write": 6,
+    "review": 5
+  }
+}
+```
 
 ---
 
