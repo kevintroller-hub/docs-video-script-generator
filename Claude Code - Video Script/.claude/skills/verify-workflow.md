@@ -97,7 +97,7 @@ Perform comprehensive post-execution verification to ensure workflow completenes
 **CSV Entry Format:**
 ```csv
 Docs repo folder,adoc file name,Video name,Short description,Script file path,Status,Date logged
-docs-product-a,deploy-app.adoc,Deploy Application to CloudHub,Learn how to deploy applications,~/Desktop/Video Workflow/Video Scripts/docs-product-a/[YOUR BRAND] - Product A - deploy-app-video-script.md,Script created,2026-04-10
+docs-product-a,deploy-app.adoc,Deploy an Application,Learn how to deploy applications,~/Desktop/Video Workflow/Video Scripts/docs-product-a/[YOUR BRAND] - Product A - deploy-app-video-script.md,Script created,2026-04-10
 ```
 
 **Required Columns:**

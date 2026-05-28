@@ -30,9 +30,9 @@ Use the `/setup-github` skill to automatically detect or configure the GitHub fo
 7. Optionally saves path for future runs
 
 **Excluded folders (never processed):**
-- `dev-docs-internal-integration-internal`
-- `docs-superagent`
-- `docs-site-playbook`
+- `docs-internal-only`
+- `docs-archived`
+- `docs-site-config`
 - `docs-release-notes`
 
 See `.claude/skills/setup-github.md` for complete documentation.
@@ -48,13 +48,13 @@ All documentation repositories are cloned locally under a single GitHub parent f
 **Structure example:**
 ```
 [GitHub-folder]/
-  ├── docs-access-management/
-  ├── docs-api-manager/
+  ├── docs-product-a/
+  ├── docs-product-b/
   └── [other docs-* folders...]
       └── **/*.adoc
 ```
 
-**Repository pattern:** `docs-*` (e.g., `docs-runtime-manager`, `docs-api-manager`)  
+**Repository pattern:** `docs-*` (e.g., `docs-product-a`, `docs-product-b`)  
 **Discovery:** Orchestrator scans GitHub folder for `docs-*` directories at runtime
 
 ### Excluded folders
@@ -62,9 +62,9 @@ All documentation repositories are cloned locally under a single GitHub parent f
 The following folder patterns must **never** be scanned or processed, even if they exist in the GitHub folder:
 
 **Excluded by name (exact match):**
-- `dev-docs-internal-integration-internal`
-- `docs-superagent`
-- `docs-site-playbook`
+- `docs-internal-only`
+- `docs-archived`
+- `docs-site-config`
 - `docs-release-notes`
 
 **Why excluded:** These folders do not contain documentation content relevant to video script generation.
@@ -96,18 +96,15 @@ All reference materials and generated outputs are organized as follows:
   │     │     ├── agents/
   │     │     └── skills/
   │     ├── Video Scripts/                   # Generated video scripts (auto-created per repository)
-  │     │     ├── docs-access-management/
-  │     │     ├── docs-api-manager/
-  │     │     ├── docs-code-builder/
-  │     │     ├── docs-composer/
-  │     │     ├── docs-runtime-manager/
+  │     │     ├── docs-product-a/
+  │     │     ├── docs-product-b/
   │     │     └── [one folder per processed repository...]
   │     │           └── [Your Brand] - [repo-name] - [topic]-video-script.md (example)
   │     └── Video Logs/                      # Tracking files organized by repository
-  │           ├── docs-access-management/
+  │           ├── docs-product-a/
   │           │     ├── video-script-tracker.csv
   │           │     └── flagged-report-[date].csv
-  │           ├── docs-runtime-manager/
+  │           ├── docs-product-b/
   │           │     ├── video-script-tracker.csv
   │           │     └── flagged-report-[date].csv
   │           └── [one folder per processed repository...]
@@ -340,7 +337,7 @@ See `.claude/skills/write-script.md` for complete format specification, validati
 - **Script format compliance (CRITICAL):** Every script MUST use the exact 3-column table format from video-script-template.pdf. No exceptions. No variations. Format consistency is mandatory for handoff to video production team. See "Required script format" section for complete specification.
 - **GitHub folder path:** Always use the auto-detected or user-confirmed GitHub folder path from step 0a. The workflow automatically searches common locations and validates candidates before prompting for manual entry. Never hardcode a specific path. The workflow must be portable across different user systems.
 - **Repository discovery:** Dynamically discover `docs-*` repositories in the detected/configured GitHub folder. Never rely on a hardcoded list. The number and names of repositories will vary by user.
-- **Exclusion enforcement:** Always exclude the 4 specified folders (dev-docs-internal-integration-internal, docs-superagent, docs-site-playbook, docs-release-notes) from discovery and processing, regardless of the user's GitHub folder content.
+- **Exclusion enforcement:** Always exclude the 4 specified folders (docs-internal-only, docs-archived, docs-site-config, docs-release-notes) from discovery and processing, regardless of the user's GitHub folder content.
 - **Repository scope:** Always honor the user's repository selection from step 0c. Never scan or process repositories that were not selected. When Option C (single repository) is chosen, all outputs must be scoped to that repository only.
 - **Time tracking:** Record the start time immediately after the user confirms repository selection (step 0c) and calculate the elapsed time when generating the final completion report (step 8). Always report execution time in the final summary to help users understand workflow performance.
 - Always read the reference files before taking any action. Never rely on assumptions about the guidelines.

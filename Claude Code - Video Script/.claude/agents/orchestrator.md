@@ -37,13 +37,14 @@ Scan the GitHub folder for all directories matching pattern `docs-*`. Exclude th
 - `docs-site-config`
 - `docs-release-notes`
 
+
 Build a list of available repositories and display:
 
 ```
 Discovered [X] documentation repositories in [path]:
-  1. docs-access-management
-  2. docs-api-manager
-  3. docs-product-a
+  1. docs-product-a
+  2. docs-product-b
+  3. docs-product-c
   [... list all discovered repos with numbers ...]
 
 Total: [X] repositories found

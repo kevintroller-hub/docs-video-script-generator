@@ -42,7 +42,7 @@ Use these rules — drawn from the video guidelines — to decide whether a `.ad
 - The content would be significantly clearer as a screen recording than as written text
 
 **Examples:**
-- "How to deploy an application to CloudHub"
+- "How to deploy an application"
 - "Creating an API proxy in API Manager"
 - "Configuring OAuth 2.0 authentication"
 - "Setting up a load balancer"

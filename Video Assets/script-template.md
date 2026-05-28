@@ -11,7 +11,7 @@ Org ID:
 Username:
 Password:
 Is 2FA enabled?
-Video destination:    Help topic, in-app, Trailhead, devdoc
+Video destination:    Help topic, in-app, devdoc
 Slack channel:        #[your-video-channel]
 Stakeholders:         List all stakeholders who will be part of the final approval (writers, PMs).
                       All stakeholders should be added to the Slack channel.

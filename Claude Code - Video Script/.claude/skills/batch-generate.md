@@ -140,7 +140,7 @@ Process VIDEO_NEEDED files through three parallel execution phases: script gener
 3. **Logging format:**
    - **Docs repo folder:** Repository name (e.g., "docs-product-a")
    - **adoc file name:** Just the filename (e.g., "deploy-app.adoc")
-   - **Video name:** Descriptive title (e.g., "Deploy Application to CloudHub")
+   - **Video name:** Descriptive title (e.g., "Deploy an Application")
    - **Short description:** 1-2 sentence summary
    - **Script file path:** Full path to .md file
    - **Status:** "Script created"

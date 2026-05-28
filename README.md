@@ -53,10 +53,12 @@ Video Assets/
   ├── video-script-template.pdf
   ├── video-script-samples.pdf
   ├── cx-writing-guidelines.pdf
-  └── video-script-prompt.md
+  ├── video-script-prompt.md
+  ├── script-template.md
+  └── script-sample.md
 ```
 
-Check that all five files are present. If any are missing, pull the latest version of the repo (see [Keeping assets up to date](#keeping-assets-up-to-date)).
+Check that all files are present. If any are missing, pull the latest version of the repo (see [Keeping assets up to date](#keeping-assets-up-to-date)).
 
 ---
 
@@ -92,7 +94,7 @@ You should see an entry pointing back to `~/Desktop/Video Workflow/Cursor - Vide
 
 ### Using the skill
 
-1. Open your docs repository in Cursor (e.g., `docs-runtime-manager`)
+1. Open your docs repository in Cursor (e.g., `docs-product-a`)
 2. Navigate to the `.adoc` file you want to generate a script for
 3. Open the Cursor agent and ask it to generate a video script for the file, for example:
 
@@ -159,7 +161,7 @@ Run the video script generator
 You can also target a specific repository directly:
 
 ```
-Run the video script generator for docs-runtime-manager
+Run the video script generator for docs-product-a
 ```
 
 #### GitHub folder auto-detection
@@ -190,7 +192,7 @@ Which repositories would you like to process?
 Options:
   A) All repositories (all discovered repos, excluding 4 excluded folders)
   B) Select specific repositories (you will choose from the discovered list)
-  C) Single repository (provide the repository name, e.g., docs-runtime-manager)
+  C) Single repository (provide the repository name, e.g., docs-product-a)
 
 Please type A, B, or C to continue.
 ```
@@ -199,9 +201,9 @@ Please type A, B, or C to continue.
 
 **Option B** — Displays a numbered list. Select by name, number, or a mix:
 ```
-docs-api-manager,docs-runtime-manager
+docs-product-a,docs-product-b
 2,5,10
-docs-api-manager,5
+docs-product-a,5
 ```
 
 **Option C** — Processes a single repository. The workflow validates it exists before proceeding.
@@ -213,9 +215,9 @@ docs-api-manager,5
 The pipeline runs automatically. You will see progress updates in the terminal as each file is processed:
 
 ```
-[✓ SKIP]         docs-runtime-manager / overview.adoc
-[✓ VIDEO_NEEDED] docs-runtime-manager / deploy-application.adoc
-[⚠ FLAGGED]      docs-runtime-manager / manage-settings.adoc
+[✓ SKIP]         docs-product-a / overview.adoc
+[✓ VIDEO_NEEDED] docs-product-a / deploy-application.adoc
+[⚠ FLAGGED]      docs-product-a / manage-settings.adoc
 ```
 
 When the run is complete, the orchestrator prints a completion report showing how many scripts were created, skipped, flagged, execution time, verification status, and output file locations.
@@ -258,9 +260,9 @@ If you need to manually replace an asset file (for example, if you receive an up
 
 The following repositories are excluded from the Claude Code workflow. The orchestrator will never scan or process them:
 
-- `dev-docs-internal-integration-internal`
-- `docs-superagent`
-- `docs-site-playbook`
+- `docs-internal-only`
+- `docs-archived`
+- `docs-site-config`
 - `docs-release-notes`
 
 If you explicitly request an excluded repository (Option C), the workflow will warn you and prompt for a different selection.
@@ -331,7 +333,7 @@ video-script-generator/
   │     │           ├── batch-generate.md
   │     │           ├── verify-workflow.md
   │     │           └── generate-completion-report.md
-  │     ├── Video Scripts/                    ← generated .md scripts (local only)
+  │     ├── Video Scripts/                    ← generated .md scripts per repo (local only)
   │     └── Video Logs/                       ← tracker, flagged reports, completion reports (local only)
   │
   └── Cursor - Video Script/                  ← Cursor workflow
